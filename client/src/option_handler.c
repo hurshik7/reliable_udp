@@ -20,12 +20,12 @@ void options_init(struct options *opts)
 
 int parse_arguments(int argc, char *argv[], struct options *opts)
 {
-    const int FAIL = 1;
     if (argc < MIN_ARG_COUNT) {
         return FAIL;
     }
 
     int c;
+    int is_error = 0;
 
     while ((c = getopt(argc, argv, "o:p:")) != -1)   // NOLINT(concurrency-mt-unsafe)
     {
@@ -39,7 +39,11 @@ int parse_arguments(int argc, char *argv[], struct options *opts)
             case 'p':
             {
                 // parse_port could exit the program.
-                opts->port_out = parse_port(optarg, 10);        // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                opts->port_out = parse_port(optarg, 10, &is_error);        // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                if (is_error == FAIL)
+                {
+                    return FAIL_WITH_MSG;
+                }
                 break;
             }
             case ':':

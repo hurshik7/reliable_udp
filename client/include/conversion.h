@@ -9,17 +9,10 @@
  * Parse string to in_port_t.
  * @param buff a string represents port number in string
  * @param radix an integer represents base
+ * @param is_error_out a pointer represents if there is an error in this function or not
  * @return port number in in_port_t type
  */
-in_port_t parse_port(const char *buff, int radix);
-
-/**
- * Parse string to size_t
- * @param buff a number in string
- * @param radix an integer represents base
- * @return size_t type integer (unsigned integer)
- */
-size_t parse_size_t(const char *buff, int radix);
+in_port_t parse_port(const char *buff, int radix, int *is_error_out);
 
 
 #endif //V4_CONVERSION_H

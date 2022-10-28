@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     struct options opts;
     options_init(&opts);
     result = parse_arguments(argc, argv, &opts);
-    if (result != 0) {
+    if (result != 0)
+    {
         fprintf(stderr, "Usage: %s -o <proxy server address> [-p port_number]\n", argv[0]);         // NOLINT(cert-err33-c)
         exit(EXIT_FAILURE);                                                                         // NOLINT(concurrency-mt-unsafe)
     }
@@ -35,49 +36,45 @@ int main(int argc, char *argv[])
         perror("[FAIL] open a socket");
         exit(EXIT_FAILURE);                       // NOLINT(concurrency-mt-unsafe)
     }
-//
-//    addr.sin_family = AF_INET;
-//    addr.sin_port = 0;
-//    addr.sin_addr.s_addr = inet_addr(argv[1]);
-//
-//    if(to_addr.sin_addr.s_addr == (in_addr_t) -1) // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
-//    {
-//        perror("inet_addr");
-//        exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
-//    }
-//
-//    result = bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-//
-//    if(result == -1)
-//    {
-//        close(fd);
-//        perror("bind");
-//        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
-//    }
-//
-//    to_addr.sin_family = AF_INET;
-//    to_addr.sin_port = htons(DEFAULT_PORT);
-//    to_addr.sin_addr.s_addr = inet_addr(argv[2]);
-//
-//    if(to_addr.sin_addr.s_addr ==  (in_addr_t)-1)
-//    {
-//        perror("inet_addr");
-//        exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
-//    }
-//
-//    nwrote = sendto(fd, argv[3], strlen(argv[3]), 0, (struct sockaddr *)&to_addr, sizeof(to_addr));
-//
-//    if(nwrote == -1)
-//    {
-//        close(fd);
-//        perror("recvfrom");
-//        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
-//    }
+
+    // init addr
+    result = init_sockaddr(&addr);
+    if (result != 0)
+    {
+        perror("[FAIL] initiate sockaddr_in");
+        exit(EXIT_FAILURE);
+    }
+
+    // bind
+    result = bind(opts.fd_out, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
+    if(result != 0)
+    {
+        close(opts.fd_out);
+        perror("[FAIL] bind");
+        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
+    }
+
+    // init proxy_server addr
+    result = init_proxy_sockaddr(&to_addr, &opts);
+    if (result != 0)
+    {
+        perror("[FAIL] initiate proxy server's sockaddr_in");
+        exit(EXIT_FAILURE);
+    }
+
+    result = do_client(&opts, &to_addr, &addr);
+    if (result != -0)
+    {
+        close(opts.fd_out);
+        perror("[FAIL] sendto");
+        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
+    }
+
 //
 //    printf("wrote %ld\n", nwrote);
 //    strncpy(data, argv[3], strlen(argv[3]));
 //    write(STDOUT_FILENO, data, nwrote);
 //    close(fd);
-//
+
     return EXIT_SUCCESS;
 }

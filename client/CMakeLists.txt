@@ -138,13 +138,7 @@ set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},-llvmlibc-restrict-system-libc-heade
 set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},-misc-static-assert")
 set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},-misc-unused-parameters")
 set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},-readability-identifier-length")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # TODO: find a better way so this is not hard-coded
-    set(CMAKE_C_CLANG_TIDY clang-tidy -extra-arg=/Library/Developer/CommandLineTools/usr/lib/clang/14.0.0/include -checks=${CLANG_TIDY_CHECKS};--quiet)
-else ()
-    set(CMAKE_C_CLANG_TIDY clang-tidy -checks=${CLANG_TIDY_CHECKS};--quiet)
-endif ()
+set(CMAKE_C_CLANG_TIDY clang-tidy -checks=${CLANG_TIDY_CHECKS};--quiet)
 
 add_executable(${PROJECT_NAME} ${SOURCE_LIST} ${HEADER_LIST})
 target_include_directories(${PROJECT_NAME} PRIVATE include)

@@ -2,11 +2,11 @@
 // Created by Shik Hur on 2022-10-28.
 //
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "option_handler.h"
 #include "udp_sender.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 int init_sockaddr(struct sockaddr_in *addr)
@@ -39,7 +39,6 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, const 
 {
     int current_seq = 0;
     char buffer[MAX_DATA_LENGTH];
-    int c;
     ssize_t nwrote;
 
     printf("[message to send]: ");
@@ -59,6 +58,7 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, const 
         nwrote = sendto(opts->fd_out, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
         if (nwrote == -1)
         {
+            free(packet);
             return MY_FAILURE_CODE;
         }
 

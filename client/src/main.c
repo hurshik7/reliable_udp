@@ -26,8 +26,6 @@ int main(int argc, char *argv[])
 
     struct sockaddr_in addr;
     struct sockaddr_in to_addr;
-    char data[MAX_DATA_LENGTH];
-    ssize_t nwrote;
 
     // open a socket
     opts.fd_out = socket(AF_INET, SOCK_DGRAM, 0); // NOLINT(android-cloexec-socket)
@@ -42,7 +40,7 @@ int main(int argc, char *argv[])
     if (result != 0)
     {
         perror("[FAIL] initiate sockaddr_in");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);                         // NOLINT(concurrency-mt-unsafe)
     }
 
     // bind
@@ -59,7 +57,7 @@ int main(int argc, char *argv[])
     if (result != 0)
     {
         perror("[FAIL] initiate proxy server's sockaddr_in");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);                          // NOLINT(concurrency-mt-unsafe)
     }
 
     result = do_client(&opts, &to_addr, &addr);
@@ -67,7 +65,7 @@ int main(int argc, char *argv[])
     {
         close(opts.fd_out);
         perror("[FAIL] sendto");
-        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
+        exit(EXIT_FAILURE);                             // NOLINT(concurrency-mt-unsafe)
     }
 
 //

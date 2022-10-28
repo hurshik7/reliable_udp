@@ -1,3 +1,7 @@
+
+
+#include "error.h"
+#include "udp_receiver.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -6,66 +10,62 @@
 #include <unistd.h>
 
 
-#define PORT 5050
-#define BUF_LEN 1024
-
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 int main(int argc, char *argv[])
 {
-    struct sockaddr_in addr;
-    struct sockaddr from_addr;
-    socklen_t from_addr_len;
     int result;
+    struct options opts;
+    options_init(&opts);
+    result = parse_arguments(argc, argv, &opts);
+    if (result != 0)
+    {
+        fprintf(stderr, "Usage: %s -i <ip address> [-p port_number]\n", argv[0]);         // NOLINT(cert-err33-c)
+        exit(EXIT_FAILURE);                                                               // NOLINT(concurrency-mt-unsafe)
+    }
+
+
+    struct sockaddr_in addr;
+    struct sockaddr_in from_addr;
     int option;
-    int fd;
-    char data[BUF_LEN];
-    ssize_t nread;
 
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-    if(fd == -1)
+    // create a socket
+    opts.fd_in = socket(AF_INET, SOCK_DGRAM, 0);
+    if(opts.fd_in == -1)
     {
-        perror("scoket");
-        exit(EXIT_FAILURE);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] socket", EXIT_FAILURE);
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = inet_addr(argv[1]);
-
-    if(addr.sin_addr.s_addr ==  (in_addr_t)-1)
+    // init addr
+    result = init_sockaddr(&addr, &opts);
+    if (result != 0)
     {
-        perror("inet_addr");
-        exit(EXIT_FAILURE);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
     }
 
+    // set up the socket
     option = 1;
-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+    setsockopt(opts.fd_in, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
-    result = bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-
+    // bind
+    result = bind(opts.fd_in, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
     if(result == -1)
     {
-        close(fd);
-        perror("bind");
-        exit(EXIT_FAILURE);
+        close(opts.fd_in);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
-    nread = recvfrom(fd, data, BUF_LEN, 0, &from_addr, &from_addr_len);
-
-    if(nread == -1)
+    result = do_server(&opts, &from_addr, &addr);
+    if (result == MY_FAILURE_CODE)
     {
-        close(fd);
-        perror("recvfrom");
-        exit(EXIT_FAILURE);
+        close(opts.fd_in);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] recevfrom", EXIT_FAILURE);
     }
 
-    printf("read %ld\n", nread);
-    write(STDOUT_FILENO, data, nread);
-    close(fd);
 
+//
+//    printf("recvfrom: %s\n", inet_ntoa(from_addr.sin_addr));
+//    //printf("read %ld\n", nread);
+//    //write(STDOUT_FILENO, data, nread);
+
+    close(opts.fd_in);
     return EXIT_SUCCESS;
 }
-#pragma GCC diagnostic pop

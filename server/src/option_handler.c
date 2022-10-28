@@ -12,28 +12,29 @@
 
 void options_init(struct options *opts)
 {
-    memset(opts, 0, sizeof(struct options));     // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+    memset(opts, 0, sizeof(struct options));            // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+    opts->port_in     = DEFAULT_PORT;
     opts->port_out    = DEFAULT_PORT;
-    opts->fd_out      = STDOUT_FILENO;
     opts->fd_in       = STDIN_FILENO;
+    opts->fd_out      = STDOUT_FILENO;
 }
 
 int parse_arguments(int argc, char *argv[], struct options *opts)
 {
-    if (argc < MIN_ARG_COUNT) {
+    if (argc > MAX_ARG_COUNT) {
         return FAIL;
     }
 
     int c;
     int is_error = 0;
 
-    while ((c = getopt(argc, argv, "o:p:")) != -1)   // NOLINT(concurrency-mt-unsafe)
+    while ((c = getopt(argc, argv, "i:p:")) != -1)   // NOLINT(concurrency-mt-unsafe)
     {
         switch (c)
         {
-            case 'o':
+            case 'i':
             {
-                opts->ip_out = optarg;
+                opts->ip_in = optarg;
                 break;
             }
             case 'p':

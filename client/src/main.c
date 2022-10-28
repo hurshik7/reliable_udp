@@ -1,5 +1,6 @@
 
 
+#include "error.h"
 #include "option_handler.h"
 #include "udp_sender.h"
 #include <arpa/inet.h>
@@ -31,16 +32,14 @@ int main(int argc, char *argv[])
     opts.fd_out = socket(AF_INET, SOCK_DGRAM, 0); // NOLINT(android-cloexec-socket)
     if(opts.fd_out == -1)
     {
-        perror("[FAIL] open a socket");
-        exit(EXIT_FAILURE);                       // NOLINT(concurrency-mt-unsafe)
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
     }
 
     // init addr
     result = init_sockaddr(&addr);
     if (result != 0)
     {
-        perror("[FAIL] initiate sockaddr_in");
-        exit(EXIT_FAILURE);                         // NOLINT(concurrency-mt-unsafe)
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
     }
 
     // bind
@@ -48,24 +47,22 @@ int main(int argc, char *argv[])
     if(result != 0)
     {
         close(opts.fd_out);
-        perror("[FAIL] bind");
-        exit(EXIT_FAILURE);  // NOLINT(concurrency-mt-unsafe)
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
     // init proxy_server addr
     result = init_proxy_sockaddr(&to_addr, &opts);
     if (result != 0)
     {
-        perror("[FAIL] initiate proxy server's sockaddr_in");
-        exit(EXIT_FAILURE);                          // NOLINT(concurrency-mt-unsafe)
+        close(opts.fd_out);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate proxy server's sockaddr_in", EXIT_FAILURE);
     }
 
     result = do_client(&opts, &to_addr, &addr);
     if (result != -0)
     {
         close(opts.fd_out);
-        perror("[FAIL] sendto");
-        exit(EXIT_FAILURE);                             // NOLINT(concurrency-mt-unsafe)
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
     }
 
 //

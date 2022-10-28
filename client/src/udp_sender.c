@@ -88,6 +88,12 @@ rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, const size
     uint16_t check_sum = generate_crc16(data, data_length);
     packet->check_sum = check_sum;
 
+    // change values into network order
+    packet->header.packet_type = htons(packet->header.packet_type);
+    packet->header.seq_no = htons(packet->header.seq_no);
+    packet->data_length = htons(packet->data_length);
+    packet->check_sum = htons(packet->check_sum);
+
     return packet;
 }
 

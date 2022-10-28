@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(udp_client
+project(udp_server
         VERSION 0.0.1
         DESCRIPTION ""
         LANGUAGES C)

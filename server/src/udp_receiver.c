@@ -6,7 +6,6 @@
 #include "udp_receiver.h"
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 
 
@@ -55,7 +54,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct
             if (packet.header.seq_no == 0)
             {
                 fprintf(stdout, "[Start receiving a message from client]\n"); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
-                // if the packet is the first packet of a client, open a socket for sending ACK packet.
+                current_seq_no = 0;
             }
 
             // check if the data is corrupted or not.

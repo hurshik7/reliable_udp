@@ -6,6 +6,8 @@
 #include "udp_receiver.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 
 int init_sockaddr(struct sockaddr_in *addr, const struct options *opts)
@@ -21,15 +23,15 @@ int init_sockaddr(struct sockaddr_in *addr, const struct options *opts)
     return MY_SUCCESS_CODE;
 }
 
-int do_server(const struct options *opts, struct sockaddr_in *proxy_addr, const struct sockaddr_in *addr)
+int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct sockaddr_in *addr)
 {
     rudp_packet_t packet;
     socklen_t from_addr_len = sizeof(struct sockaddr_in);
     int current_seq_no = -1;
+    int result;
 
     ssize_t nread;
     char buffer[MAX_DATA_LENGTH];
-    char sender_ip_addr[MAX_IP_ADDRESS_LENGTH];
     do
     {
         nread = recvfrom(opts->fd_in, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)&proxy_addr, &from_addr_len);
@@ -38,44 +40,70 @@ int do_server(const struct options *opts, struct sockaddr_in *proxy_addr, const 
             return MY_FAILURE_CODE;
         }
 
-        uint16_t check_sum_of_data_in_pack;
         deserialize_packet(&packet);
-        check_sum_of_data_in_pack = generate_crc16(packet.data, packet.data_length);
-        if (check_sum_of_data_in_pack != packet.check_sum)
-        {
-            // send NAK and continue;
-        }
-
-        if (packet.header.seq_no != current_seq_no + 1)
-        {
-            // discard this packet.
-        }
-
+        rudp_header_t response_packet_header;
+        rudp_packet_t *response_packet;
         if (packet.header.packet_type == RUDP_SYN)
         {
             if (packet.header.seq_no == 0)
             {
-                //get_ip_str((const struct sockaddr *)proxy_addr, sender_ip_addr);
                 fprintf(stdout, "[Start receiving a message from client]\n"); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
-                //fprintf(stdout, "[TEST %s]\n", sender_ip_addr);                             // NOLINT(cert-err33-c)
+                // if the packet is the first packet of a client, open a socket for sending ACK packet.
+                result = open_socket_for_response(opts, proxy_addr);
+                if (result == MY_FAILURE_CODE)
+                {
+                    return OPEN_SOCKET_FAILURE_CODE;
+                }
             }
 
-            // send ACK here
+            // check if the data is corrupted or not.
+            uint16_t check_sum_of_data_in_pack;
+            check_sum_of_data_in_pack = generate_crc16(packet.data, packet.data_length);
+            if (check_sum_of_data_in_pack != packet.check_sum)
+            {
+                init_rudp_header(RUDP_NAK, packet.header.seq_no, &response_packet_header);
+                response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
+                sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+                free(response_packet);
+                continue;
+            }
 
+            // if the sender sent the same packet with previous one, send ACK to client again for the same packet.
+            // this situation only happens when the client can not receive the ACK of the packet from the server
+            if (packet.header.seq_no != current_seq_no)
+            {
+                init_rudp_header(RUDP_ACK, packet.header.seq_no, &response_packet_header);
+                response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
+                sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+                free(response_packet);
+                continue;
+            }
+
+            // copy data from the client, print it on stdout
             strncpy(buffer, packet.data, packet.data_length);
             buffer[packet.data_length] = '\0';
             fprintf(stdout, "\t%s\n", buffer);                                              // NOLINT(cert-err33-c)
+
+            // send ACK
+            init_rudp_header(RUDP_ACK, current_seq_no, &response_packet_header);
+            response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
+            sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+
+            // free response packet and increase current_seq_no
+            current_seq_no++;
         }
         else if (packet.header.packet_type == RUDP_FIN)
         {
-            // send ACK to FIN here
             fprintf(stdout, "[Finish the message transmission]\n");    // NOLINT(cert-err33-c)
+            // send FIN
+            init_rudp_header(RUDP_FIN, current_seq_no, &response_packet_header);
+            response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
+            sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
             current_seq_no = -1;
+            close(opts->fd_out);
         }
-        else
-        {
-            continue;
-        }
+        else continue;
+        free(response_packet);
     } while (nread > 0);
 
     return MY_SUCCESS_CODE;
@@ -89,18 +117,20 @@ void deserialize_packet(rudp_packet_t *packet)
     packet->check_sum = ntohs(packet->check_sum);
 }
 
-void get_ip_str(const struct sockaddr *sa, char *out_str)
+int open_socket_for_response(struct options *opts, struct sockaddr_in *to_addr)
 {
-    switch(sa->sa_family)
+    int result;
+    opts->fd_out = socket(AF_INET, SOCK_DGRAM, 0);                // NOLINT(android-cloexec-socket)
+    if(opts->fd_out == -1)
     {
-        case AF_INET:
-            inet_ntop(AF_INET, &(((const struct sockaddr_in*)sa)->sin_addr), out_str, MAX_IP_ADDRESS_LENGTH);  // NOLINT(clang-diagnostic-cast-align)
-            break;
-        case AF_INET6:
-            inet_ntop(AF_INET6, &(((const struct sockaddr_in6 *)sa)->sin6_addr), out_str, MAX_IP_ADDRESS_LENGTH); // NOLINT(clang-diagnostic-cast-align)
-            break;
-        default:
-            strncpy(out_str, "Unknown AF", MAX_IP_ADDRESS_LENGTH);
-            out_str[MAX_IP_ADDRESS_LENGTH - 1] = '\0';
+        return MY_FAILURE_CODE;
     }
+
+    result = bind(opts->fd_out, (struct sockaddr*)to_addr, sizeof(struct sockaddr_in));
+    if (result != 0)
+    {
+        return MY_FAILURE_CODE;
+    }
+
+    return MY_SUCCESS_CODE;
 }

@@ -30,6 +30,13 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct
     int current_seq_no = -1;
     int result;
 
+    // open a socket to response packets
+    result = open_socket_for_response(opts, proxy_addr);
+    if (result == MY_FAILURE_CODE)
+    {
+        return OPEN_SOCKET_FAILURE_CODE;
+    }
+
     ssize_t nread;
     char buffer[MAX_DATA_LENGTH];
     do
@@ -49,11 +56,6 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct
             {
                 fprintf(stdout, "[Start receiving a message from client]\n"); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
                 // if the packet is the first packet of a client, open a socket for sending ACK packet.
-                result = open_socket_for_response(opts, proxy_addr);
-                if (result == MY_FAILURE_CODE)
-                {
-                    return OPEN_SOCKET_FAILURE_CODE;
-                }
             }
 
             // check if the data is corrupted or not.

@@ -66,11 +66,6 @@ int main(int argc, char *argv[])
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open socket to response a packet", EXIT_FAILURE);
     }
 
-//
-//    printf("recvfrom: %s\n", inet_ntoa(from_addr.sin_addr));
-//    //printf("read %ld\n", nread);
-//    //write(STDOUT_FILENO, data, nread);
-
     close(opts.fd_in);
     close(opts.fd_out);
     return EXIT_SUCCESS;

@@ -85,7 +85,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct
             fprintf(stdout, "\t%s\n", buffer);                                              // NOLINT(cert-err33-c)
 
             // send ACK
-            init_rudp_header(RUDP_ACK, current_seq_no, &response_packet_header);
+            init_rudp_header(RUDP_ACK, packet.header.seq_no, &response_packet_header);
             response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
             sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
 
@@ -94,15 +94,20 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct
         }
         else if (packet.header.packet_type == RUDP_FIN)
         {
-            fprintf(stdout, "[Finish the message transmission]\n");    // NOLINT(cert-err33-c)
-            // send FIN
-            init_rudp_header(RUDP_FIN, current_seq_no, &response_packet_header);
+            if (current_seq_no != -1)
+            {
+                fprintf(stdout, "[Finish the message transmission]\n");    // NOLINT(cert-err33-c)
+            }
+            // send ACT to FIN
+            init_rudp_header(RUDP_ACK, packet.header.seq_no, &response_packet_header);
             response_packet = create_rudp_packet_malloc(&response_packet_header, 0, NULL);
             sendto(opts->fd_out, response_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
             current_seq_no = -1;
-            close(opts->fd_out);
         }
-        else continue;
+        else
+        {
+            continue;
+        }
         free(response_packet);
     } while (nread > 0);
 

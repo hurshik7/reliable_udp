@@ -83,7 +83,7 @@ rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, const size
 {
     rudp_packet_t *packet = (rudp_packet_t *) malloc(sizeof(rudp_packet_t));
     memcpy(&packet->header, header, sizeof(rudp_header_t));
-    packet->data_length = data_length;
+    packet->data_length = data_length - 1; // ignore the '\n' at the end of the data
     strncpy(packet->data, data, data_length);
     uint16_t check_sum = generate_crc16(data, data_length);
     packet->check_sum = check_sum;

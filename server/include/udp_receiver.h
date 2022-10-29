@@ -7,6 +7,7 @@
 
 
 #define MY_FAILURE_CODE (1)
+#define OPEN_SOCKET_FAILURE_CODE (2)
 #define MY_SUCCESS_CODE (0)
 #define MAX_IP_ADDRESS_LENGTH (16)
 
@@ -16,9 +17,9 @@
 
 
 int init_sockaddr(struct sockaddr_in *addr, const struct options *opts);
-int do_server(const struct options *opts, struct sockaddr_in *proxy_addr, const struct sockaddr_in *addr);
+int do_server(struct options *opts, struct sockaddr_in *proxy_addr, const struct sockaddr_in *addr);
 void deserialize_packet(rudp_packet_t *packet);
-void get_ip_str(const struct sockaddr *sa, char *out_str);
+int open_socket_for_response(struct options *opts, struct sockaddr_in *to_addr);
 
 
 #endif //UDP_SERVER_UDP_RECEIVER_H

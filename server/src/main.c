@@ -56,9 +56,15 @@ int main(int argc, char *argv[])
     if (result == MY_FAILURE_CODE)
     {
         close(opts.fd_in);
+        close(opts.fd_out);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] recevfrom", EXIT_FAILURE);
     }
-
+    else if (result == OPEN_SOCKET_FAILURE_CODE)
+    {
+        close(opts.fd_in);
+        close(opts.fd_out);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open socket to response a packet", EXIT_FAILURE);
+    }
 
 //
 //    printf("recvfrom: %s\n", inet_ntoa(from_addr.sin_addr));
@@ -66,5 +72,6 @@ int main(int argc, char *argv[])
 //    //write(STDOUT_FILENO, data, nread);
 
     close(opts.fd_in);
+    close(opts.fd_out);
     return EXIT_SUCCESS;
 }

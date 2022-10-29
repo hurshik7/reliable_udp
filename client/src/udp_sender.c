@@ -78,22 +78,3 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, const 
     // return
     return MY_SUCCESS_CODE;
 }
-
-rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, const size_t data_length, const char *data)
-{
-    rudp_packet_t *packet = (rudp_packet_t *) malloc(sizeof(rudp_packet_t));
-    memcpy(&packet->header, header, sizeof(rudp_header_t));
-    packet->data_length = data_length - 1; // ignore the '\n' at the end of the data
-    strncpy(packet->data, data, data_length);
-    uint16_t check_sum = generate_crc16(data, data_length);
-    packet->check_sum = check_sum;
-
-    // change values into network order
-    packet->header.packet_type = htons(packet->header.packet_type);
-    packet->header.seq_no = htons(packet->header.seq_no);
-    packet->data_length = htons(packet->data_length);
-    packet->check_sum = htons(packet->check_sum);
-
-    return packet;
-}
-

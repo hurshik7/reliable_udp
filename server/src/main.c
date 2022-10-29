@@ -2,7 +2,6 @@
 
 #include "error.h"
 #include "udp_receiver.h"
-#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +27,7 @@ int main(int argc, char *argv[])
     int option;
 
     // create a socket
-    opts.fd_in = socket(AF_INET, SOCK_DGRAM, 0);
+    opts.fd_in = socket(AF_INET, SOCK_DGRAM, 0);                                           // NOLINT(android-cloexec-socket)
     if(opts.fd_in == -1)
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] socket", EXIT_FAILURE);

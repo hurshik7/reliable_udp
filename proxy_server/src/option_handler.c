@@ -23,7 +23,7 @@ void options_init(struct options *opts)
 
 int parse_arguments(int argc, char *argv[], struct options *opts)
 {
-    if (argc < MIN_ARG_COUNT || argc % 2 == 0) {
+    if (argc < MIN_ARG_COUNT) {
         return FAIL;
     }
 

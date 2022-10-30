@@ -21,7 +21,7 @@ void options_init(struct options *opts)
     opts->chance_drop_res            = DEFAULT_CHANCE;
 }
 
-int parse_arguments(int argc, char *argv[], struct options *opts)
+int parse_arguments(int argc, char *argv[], struct options *opts) // NOLINT(readability-function-cognitive-complexity)
 {
     if (argc < MIN_ARG_COUNT) {
         return FAIL;

@@ -62,3 +62,4 @@ void deserialize_packet(rudp_packet_t *packet)
     packet->data_length = ntohs(packet->data_length);
     packet->check_sum = ntohs(packet->check_sum);
 }
+

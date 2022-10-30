@@ -36,7 +36,7 @@ int init_proxy_sockaddr(struct sockaddr_in *proxy_addr, const struct options *op
 
 int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct sockaddr_in *from_addr)
 {
-    int current_seq = 0;
+    uint16_t current_seq = 0;
     char buffer[MAX_DATA_LENGTH];
     ssize_t nwrote;
     ssize_t nread;
@@ -46,12 +46,12 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct
     printf("[message to send]: ");
     while (fgets(buffer, MAX_DATA_LENGTH, stdin) != NULL)
     {
-        // create rudp finpacket header
+        // create rudp fin packet header
         rudp_header_t header;
         header.packet_type = RUDP_SYN;
         header.seq_no = current_seq;
 
-        // create rudp finpacket
+        // create rudp fin packet
         rudp_packet_t *packet = create_rudp_packet_malloc(&header, strlen(buffer), buffer);
 
         // sendto proxy server
@@ -78,7 +78,7 @@ wait_response_packet:
         }
 
         deserialize_packet(&response_packet);
-        // if it receives NAK, or it receives ACK but the seq_no is not equal to the finpacket it sent, resend the finpacket.
+        // if it receives NAK, or it receives ACK but the seq_no is not equal to the fin packet it sent, resend the fin packet.
         if (response_packet.header.packet_type == RUDP_NAK || (response_packet.header.seq_no != current_seq || response_packet.header.packet_type != RUDP_ACK))
         {
             nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
@@ -114,7 +114,7 @@ wait_response_packet:
     return MY_SUCCESS_CODE;
 }
 
-int send_fin(int current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
+int send_fin(uint16_t current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
 {
     ssize_t nwrote;
     // send FIN, get ACK

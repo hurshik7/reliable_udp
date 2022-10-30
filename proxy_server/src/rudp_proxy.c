@@ -93,7 +93,6 @@ _Noreturn void *deliver_packet_from_client_to_server(void *argument)
 
 _Noreturn void *deliver_res_from_server_to_client(void *argument)
 {
-    struct sockaddr_in *server_addr = ((my_thread_arg_t *) argument)->server_addr;
     struct sockaddr_in *client_addr = ((my_thread_arg_t *) argument)->client_addr;
     int out_sock_fd = ((my_thread_arg_t *) argument)->opts->out_sock_fd;
     int in_sock_fd = ((my_thread_arg_t *) argument)->opts->in_sock_fd;

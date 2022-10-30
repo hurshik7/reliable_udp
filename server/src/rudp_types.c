@@ -54,3 +54,11 @@ void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out)
     header_out->packet_type = type;
     header_out->seq_no = seq_no;
 }
+
+void deserialize_packet(rudp_packet_t *packet)
+{
+    packet->header.packet_type = ntohs(packet->header.packet_type);
+    packet->header.seq_no = ntohs(packet->header.seq_no);
+    packet->data_length = ntohs(packet->data_length);
+    packet->check_sum = ntohs(packet->check_sum);
+}

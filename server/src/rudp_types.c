@@ -42,14 +42,14 @@ rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, const size
     }
     // change values into network order
     packet->header.packet_type = htons(packet->header.packet_type);
-    packet->header.seq_no = htons(packet->header.seq_no);
+    packet->header.seq_no = htonl(packet->header.seq_no);
     packet->data_length = htons(packet->data_length);
     packet->check_sum = htons(packet->check_sum);
 
     return packet;
 }
 
-void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out)
+void init_rudp_header(uint16_t type, uint32_t seq_no, rudp_header_t *header_out)
 {
     header_out->packet_type = type;
     header_out->seq_no = seq_no;
@@ -58,7 +58,7 @@ void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out)
 void deserialize_packet(rudp_packet_t *packet)
 {
     packet->header.packet_type = ntohs(packet->header.packet_type);
-    packet->header.seq_no = ntohs(packet->header.seq_no);
+    packet->header.seq_no = ntohl(packet->header.seq_no);
     packet->data_length = ntohs(packet->data_length);
     packet->check_sum = ntohs(packet->check_sum);
 }

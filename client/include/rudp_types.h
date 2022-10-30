@@ -21,7 +21,7 @@
  */
 typedef struct rudp_header {
     uint16_t packet_type;
-    uint16_t seq_no;
+    uint32_t seq_no;
 } rudp_header_t;
 
 /**
@@ -57,10 +57,10 @@ rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, size_t dat
  * Initiate rudp_header.
  *  It also serializes contents of the packet in network order.
  * @param type an uint16_t integer represents a type of rudp_packet
- * @param seq_no an uint16_t integer represents a sequence number of a packet
+ * @param seq_no an uint32_t integer represents a sequence number of a packet
  * @param header_out a rudp_header pointer, which will have the above values
  */
-void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out);
+void init_rudp_header(uint16_t type, uint32_t seq_no, rudp_header_t *header_out);
 
 /**
  * Deserialize a rudp_packet into the host order.

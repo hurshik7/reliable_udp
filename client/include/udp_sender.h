@@ -12,6 +12,7 @@
 #define MAX_DATA_LENGTH (1024)
 #define MY_SUCCESS_CODE (0)
 #define MY_FAILURE_CODE (1)
+#define TIMEOUT_IN_SECOND (2)
 
 
 struct options;

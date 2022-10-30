@@ -3,12 +3,9 @@
 #include "error.h"
 #include "option_handler.h"
 #include "udp_sender.h"
-#include <arpa/inet.h>
-#include <assert.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -28,6 +25,9 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr;
     struct sockaddr_in to_addr;
     struct sockaddr_in from_addr;
+    struct timeval tv;
+    tv.tv_sec = TIMEOUT_IN_SECOND;
+    tv.tv_usec = 0;
 
     // open a socket
     opts.sock_fd = socket(AF_INET, SOCK_DGRAM, 0);       // NOLINT(android-cloexec-socket)
@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
     }
+    // set timeout
+    setsockopt(opts.sock_fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof(tv));
 
     // init addr
     result = init_sockaddr(&addr);

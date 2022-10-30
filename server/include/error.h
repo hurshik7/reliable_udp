@@ -27,3 +27,4 @@ _Noreturn void fatal_message(const char *file, const char *func, size_t line, co
 
 
 #endif //V1_ERROR_H
+

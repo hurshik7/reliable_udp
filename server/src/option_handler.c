@@ -63,3 +63,4 @@ int parse_arguments(int argc, char *argv[], struct options *opts)
     }
     return 0;
 }
+

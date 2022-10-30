@@ -21,14 +21,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);                                                               // NOLINT(concurrency-mt-unsafe)
     }
 
-
     struct sockaddr_in addr;
     struct sockaddr_in from_addr;
     int option;
 
     // create a socket
-    opts.fd_in = socket(AF_INET, SOCK_DGRAM, 0);                                           // NOLINT(android-cloexec-socket)
-    if(opts.fd_in == -1)
+    opts.sock_fd = socket(AF_INET, SOCK_DGRAM, 0);                                           // NOLINT(android-cloexec-socket)
+    if(opts.sock_fd == -1)
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] socket", EXIT_FAILURE);
     }
@@ -42,31 +41,28 @@ int main(int argc, char *argv[])
 
     // set up the socket
     option = 1;
-    setsockopt(opts.fd_in, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+    setsockopt(opts.sock_fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
     // bind
-    result = bind(opts.fd_in, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+    result = bind(opts.sock_fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
     if(result == -1)
     {
-        close(opts.fd_in);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
-    result = do_server(&opts, &from_addr, &addr);
+    result = do_server(&opts, &from_addr);
     if (result == MY_FAILURE_CODE)
     {
-        close(opts.fd_in);
-        close(opts.fd_out);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] recevfrom", EXIT_FAILURE);
     }
     else if (result == OPEN_SOCKET_FAILURE_CODE)
     {
-        close(opts.fd_in);
-        close(opts.fd_out);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open socket to response a packet", EXIT_FAILURE);
     }
 
-    close(opts.fd_in);
-    close(opts.fd_out);
+    close(opts.sock_fd);
     return EXIT_SUCCESS;
 }

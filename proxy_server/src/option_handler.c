@@ -92,7 +92,7 @@ int parse_arguments(int argc, char *argv[], struct options *opts)
         }
     }
 
-    if (optind < argc)
+    if (optind < argc || opts->ip_out == NULL)
     {
         return FAIL;
     }

@@ -1,6 +1,7 @@
 #include "conversion.h"
 #include "error.h"
 #include <errno.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -52,4 +53,47 @@ in_port_t parse_port(const char *buff, int radix, int *is_error_out)
     port = (in_port_t)sl;
 
     return port;
+}
+
+uint8_t parse_uint8(const char *buff, int radix, int *is_error_out)
+{
+    char *end;
+    uintmax_t max;
+    uint8_t ret_val;
+    const char *msg;
+
+    errno = 0;
+    max = strtoumax(buff, &end, radix);
+
+    if (end == buff)
+    {
+        msg = "not a decimal number";
+    }
+    else if (*end != '\0')
+    {
+        msg = "extra characters at end of input";
+    }
+    else if ((max == UINTMAX_MAX || max == 0) && ERANGE == errno)
+    {
+        msg = "out of range of type uintmax_t";
+    }
+    else if (max >= 101)                    // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    {
+        msg = "out of range [0 - 100]";
+    }
+    else
+    {
+        msg = NULL;
+    }
+
+    if (msg)
+    {
+        fprintf(stderr, "%s\n", msg);       // NOLINT(cert-err33-c)
+        *is_error_out = EXIT_FAILURE;
+        return 101;                         // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    }
+
+    ret_val = (uint8_t)max;
+
+    return ret_val;
 }

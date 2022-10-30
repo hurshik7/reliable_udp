@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     result = parse_arguments(argc, argv, &opts);
     if (result != 0 || opts.ip_in == NULL || opts.ip_out == NULL)
     {
-        fprintf(stderr, "Usage: %s -i <ip address> [-p port_number] -o <server ip address> [-P server port number]\n", argv[0]);   // NOLINT(cert-err33-c)
-        exit(EXIT_FAILURE);                                                                         // NOLINT(concurrency-mt-unsafe)
+        fprintf(stderr, "Usage: %s -i <ip address> [-p port_number] -o <server ip address> [-P server port number] [-r chance of dropping a packet to server] [-R chance of dropping an ACK to client]\n", argv[0]);         // NOLINT(cert-err33-c)
+        exit(EXIT_FAILURE);                                                                                                            // NOLINT(concurrency-mt-unsafe)
     }
 
     struct sockaddr_in addr;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
     }
-    opts.out_sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    opts.out_sock_fd = socket(AF_INET, SOCK_DGRAM, 0);      // NOLINT(android-cloexec-socket)
     if (opts.out_sock_fd == -1)
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
@@ -68,15 +68,17 @@ int main(int argc, char *argv[])
         close(opts.out_sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate server's sockaddr_in", EXIT_FAILURE);
     }
-//
-//    result = do_client(&opts, &server_addr, &client_addr);
-//    if (result != -0)
-//    {
-//        close(opts.sock_fd);
-//        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
-//    }
-//
+
+    result = do_proxy(&opts, &server_addr, &client_addr);
+    if (result != -0)
+    {
+        close(opts.in_sock_fd);
+        close(opts.out_sock_fd);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
+    }
+
     close(opts.in_sock_fd);
     close(opts.out_sock_fd);
     return EXIT_SUCCESS;
 }
+

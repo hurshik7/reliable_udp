@@ -13,7 +13,7 @@ int init_sockaddr(struct sockaddr_in *addr, const struct options *opts)
 {
     addr->sin_family = AF_INET;
     addr->sin_port = htons(opts->port_in);
-    addr->sin_addr.s_addr = inet_addr(opts->ip_in);
+    addr->sin_addr.s_addr = opts->ip_in ? inet_addr(opts->ip_in) : htonl(INADDR_ANY);
 
     if(addr->sin_addr.s_addr == (in_addr_t) -1) // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
     {
@@ -30,6 +30,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr)
 
     ssize_t nread;
     char buffer[MAX_DATA_LENGTH];
+    fprintf(stdout, "[Listening on port %d]\n", opts->port_in); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
     do
     {
         nread = recvfrom(opts->sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)proxy_addr, &from_addr_len);

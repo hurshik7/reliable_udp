@@ -13,7 +13,7 @@ int init_sockaddr(struct sockaddr_in *addr, const struct options *opts)
 {
     addr->sin_family = AF_INET;
     addr->sin_port = htons(opts->port_in);
-    addr->sin_addr.s_addr = inet_addr(opts->ip_in);
+    addr->sin_addr.s_addr = opts->ip_in ? inet_addr(opts->ip_in) : htonl(INADDR_ANY);
 
     if(addr->sin_addr.s_addr == (in_addr_t) -1) // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
     {

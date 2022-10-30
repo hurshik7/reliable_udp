@@ -30,6 +30,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr)
 
     ssize_t nread;
     char buffer[MAX_DATA_LENGTH];
+    fprintf(stdout, "[Listening on port %d]\n", opts->port_in); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
     do
     {
         nread = recvfrom(opts->sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)proxy_addr, &from_addr_len);

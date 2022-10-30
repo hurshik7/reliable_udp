@@ -43,7 +43,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr)
         rudp_packet_t *response_packet;
         if (packet.header.packet_type == RUDP_SYN)
         {
-            if (packet.header.seq_no == 0)
+            if (packet.header.seq_no == 0 && current_seq_no == -1)
             {
                 fprintf(stdout, "[Start receiving a message from client]\n"); // NOLINT(cert-err33-c, concurrency-mt-unsafe)
                 current_seq_no = 0;

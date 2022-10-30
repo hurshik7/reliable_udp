@@ -84,7 +84,7 @@ _Noreturn void *deliver_packet_from_client_to_server(void *argument)
                 nwrite = sendto(out_sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *) server_addr, sizeof(struct sockaddr_in));
                 if (nwrite != -1)
                 {
-                    printf("success to send to SERVER\n");
+                    fprintf(stdout, "[Client ----------RUDP_PACKET------>>>> Server]\n");        // NOLINT(cert-err33-c)
                 }
             }
         }
@@ -115,9 +115,10 @@ _Noreturn void *deliver_res_from_server_to_client(void *argument)
                 nwrite = sendto(in_sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *) client_addr, sizeof(struct sockaddr_in));
                 if (nwrite != 1)
                 {
-                    printf("ACK to Client!\n");
+                    fprintf(stdout, "[Client <<<<-----------ACK------------- Server] \n");          // NOLINT(cert-err33-c)
                 }
             }
         }
     }
 }
+

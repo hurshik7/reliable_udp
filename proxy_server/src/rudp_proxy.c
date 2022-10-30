@@ -79,7 +79,7 @@ _Noreturn void *deliver_packet_from_client_to_server(void *argument)
         if (nread > 0)
         {
             int random_num = (rand() % 100) + 1;        // NOLINT(cert-msc30-c,cert-msc50-cpp,clang-analyzer-security.insecureAPI.rand,concurrency-mt-unsafe,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-            if (random_num <= chance)
+            if (random_num > chance)
             {
                 nwrite = sendto(out_sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *) server_addr, sizeof(struct sockaddr_in));
                 if (nwrite != -1)
@@ -114,7 +114,7 @@ _Noreturn void *deliver_res_from_server_to_client(void *argument)
         if (nread > 0)
         {
             int random_num = (rand() % 100) + 1;        // NOLINT(cert-msc30-c,cert-msc50-cpp,clang-analyzer-security.insecureAPI.rand,concurrency-mt-unsafe,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-            if (random_num <= chance)
+            if (random_num > chance)
             {
                 nwrite = sendto(in_sock_fd, &packet, sizeof(rudp_packet_t), 0, (struct sockaddr *) client_addr, sizeof(struct sockaddr_in));
                 if (nwrite != 1)
@@ -125,7 +125,6 @@ _Noreturn void *deliver_res_from_server_to_client(void *argument)
             else
             {
                 fprintf(stdout, "[***** DROPPED! <<<<-----------ACK------------- Server] \n");        // NOLINT(cert-err33-c)
-
             }
         }
     }

@@ -87,6 +87,10 @@ _Noreturn void *deliver_packet_from_client_to_server(void *argument)
                     fprintf(stdout, "[Client ----------RUDP_PACKET------>>>> Server]\n");        // NOLINT(cert-err33-c)
                 }
             }
+            else
+            {
+                fprintf(stdout, "[***** Client ----------RUDP_PACKET------>>>> DROPPED!]\n");        // NOLINT(cert-err33-c)
+            }
         }
     }
 }
@@ -117,6 +121,11 @@ _Noreturn void *deliver_res_from_server_to_client(void *argument)
                 {
                     fprintf(stdout, "[Client <<<<-----------ACK------------- Server] \n");          // NOLINT(cert-err33-c)
                 }
+            }
+            else
+            {
+                fprintf(stdout, "[***** DROPPED! <<<<-----------ACK------------- Server] \n");        // NOLINT(cert-err33-c)
+
             }
         }
     }

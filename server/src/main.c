@@ -9,6 +9,12 @@
 #include <unistd.h>
 
 
+/**
+ * Runs rudp server.
+ * @param argc the number of command line arguments
+ * @param argv an array of string represents command line arguments
+ * @return an integer represents exit code
+ */
 int main(int argc, char *argv[])
 {
     int result;
@@ -66,3 +72,4 @@ int main(int argc, char *argv[])
     close(opts.sock_fd);
     return EXIT_SUCCESS;
 }
+

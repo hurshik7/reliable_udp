@@ -13,7 +13,16 @@
  * @return port number in in_port_t type
  */
 in_port_t parse_port(const char *buff, int radix, int *is_error_out);
+
+/**
+ * Parse string to uint8_t.
+ * @param buff a number in string
+ * @param radix an integer represents base
+ * @param is_error_out a pointer represents if there is an error in this function or not
+ * @return uint8_t type integer (unsigned integer)
+ */
 uint8_t parse_uint8(const char *buff, int radix, int *is_error_out);
 
 
 #endif //V4_CONVERSION_H
+

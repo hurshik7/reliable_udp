@@ -14,8 +14,7 @@ void options_init(struct options *opts)
 {
     memset(opts, 0, sizeof(struct options));     // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     opts->port_out    = DEFAULT_PORT;
-    opts->fd_out      = STDOUT_FILENO;
-    opts->fd_in       = STDIN_FILENO;
+    opts->sock_fd      = STDOUT_FILENO;
 }
 
 int parse_arguments(int argc, char *argv[], struct options *opts)

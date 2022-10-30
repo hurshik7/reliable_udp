@@ -28,53 +28,101 @@ int init_proxy_sockaddr(struct sockaddr_in *proxy_addr, const struct options *op
     proxy_addr->sin_port = htons(opts->port_out);
     proxy_addr->sin_addr.s_addr = inet_addr(opts->ip_out);
 
-    if(proxy_addr->sin_addr.s_addr ==  (in_addr_t)-1)
+    if (proxy_addr->sin_addr.s_addr == (in_addr_t) -1)
     {
         return MY_FAILURE_CODE;
     }
     return MY_SUCCESS_CODE;
 }
 
-int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, const struct sockaddr_in *addr)
+int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct sockaddr_in *from_addr)
 {
     int current_seq = 0;
     char buffer[MAX_DATA_LENGTH];
     ssize_t nwrote;
+    ssize_t nread;
+    rudp_packet_t response_packet;
+    socklen_t from_addr_len = sizeof(struct sockaddr_in);
 
     printf("[message to send]: ");
     while (fgets(buffer, MAX_DATA_LENGTH, stdin) != NULL)
     {
-        // create rudp packet header
+        // create rudp finpacket header
         rudp_header_t header;
         header.packet_type = RUDP_SYN;
         header.seq_no = current_seq;
 
-        // create rudp packet
+        // create rudp finpacket
         rudp_packet_t *packet = create_rudp_packet_malloc(&header, strlen(buffer), buffer);
 
-        // set up timer
-
         // sendto proxy server
-        nwrote = sendto(opts->fd_out, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+        nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
         if (nwrote == -1)
         {
             free(packet);
             return MY_FAILURE_CODE;
         }
 
-        // wait for the ACK
-            // if it gets ACK -> check the seq_number, if it's valid -> free the packet and continue;
-            // it it gets NAK -> send the packet again
-            // time out -> send the packet again.
+        // set up timer (TODO)
+wait_response_packet:
+        nread = recvfrom(opts->sock_fd, &response_packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)from_addr, &from_addr_len);
+        if (nread == -1)
+        {
+            nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+            if (nwrote == -1)
+            {
+                free(packet);
+                return MY_FAILURE_CODE;
+            }
+            goto wait_response_packet;
+        }
+        deserialize_packet(&response_packet);
 
+        // if it receives NAK or it receives ACK but the seq_no is not equal to the finpacket it sent, resend the finpacket.
+        if (response_packet.header.packet_type == RUDP_NAK || (response_packet.header.seq_no != current_seq || response_packet.header.packet_type != RUDP_ACK))
+        {
+            nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+            if (nwrote == -1)
+            {
+                free(packet);
+                return MY_FAILURE_CODE;
+            }
+            goto wait_response_packet;
+        }
+
+        fprintf(stdout, "\t|______________________________[received ACK]\n");           // NOLINT(cert-err33-c)
         // increase sequence number and continue
         free(packet);
         current_seq++;
         printf("[message to send]: ");
     }
 
-    // send FIN, get ACK
+    do
+    {
+        send_fin(current_seq, opts->sock_fd, proxy_addr);
+        nread = recvfrom(opts->sock_fd, &response_packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)from_addr, &from_addr_len);
+        // set timer (TODO)
+        deserialize_packet(&response_packet);
+    } while (nread == -1 || (response_packet.header.seq_no != current_seq || response_packet.header.packet_type != RUDP_ACK));
 
-    // return
+    fprintf(stdout, "\n[Finish sending messages (Received ACK for the FIN)]\n");                // NOLINT(cert-err33-c)
     return MY_SUCCESS_CODE;
 }
+
+int send_fin(int current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
+{
+    ssize_t nwrote;
+    // send FIN, get ACK
+    rudp_header_t fin_header;
+    init_rudp_header(RUDP_FIN, current_seq, &fin_header);
+    rudp_packet_t *fin_packet = create_rudp_packet_malloc(&fin_header, 0, NULL);
+    nwrote = sendto(sock_fd, fin_packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
+    if (nwrote == -1)
+    {
+        free(fin_packet);
+        return MY_FAILURE_CODE;
+    }
+    free(fin_packet);
+    return MY_SUCCESS_CODE;
+}
+

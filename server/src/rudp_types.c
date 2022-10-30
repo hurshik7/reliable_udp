@@ -30,7 +30,7 @@ rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, const size
     {
         packet->data_length = data_length - 1; // ignore the '\n' at the end of the data
         strncpy(packet->data, data, data_length);
-        uint16_t check_sum = generate_crc16(data, data_length);
+        uint16_t check_sum = generate_crc16(data, packet->data_length);
         packet->check_sum = check_sum;
     }
     else
@@ -53,4 +53,12 @@ void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out)
 {
     header_out->packet_type = type;
     header_out->seq_no = seq_no;
+}
+
+void deserialize_packet(rudp_packet_t *packet)
+{
+    packet->header.packet_type = ntohs(packet->header.packet_type);
+    packet->header.seq_no = ntohs(packet->header.seq_no);
+    packet->data_length = ntohs(packet->data_length);
+    packet->check_sum = ntohs(packet->check_sum);
 }

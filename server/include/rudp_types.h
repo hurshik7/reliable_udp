@@ -32,6 +32,7 @@ typedef struct rudp_packet {
 uint16_t generate_crc16(const char *data, size_t data_length);
 rudp_packet_t *create_rudp_packet_malloc(const rudp_header_t *header, size_t data_length, const char *data);
 void init_rudp_header(uint16_t type, uint16_t seq_no, rudp_header_t *header_out);
+void deserialize_packet(rudp_packet_t *packet);
 
 
 #endif //UDP_CLIENT_RUDP_TYPES_H

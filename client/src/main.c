@@ -27,10 +27,11 @@ int main(int argc, char *argv[])
 
     struct sockaddr_in addr;
     struct sockaddr_in to_addr;
+    struct sockaddr_in from_addr;
 
     // open a socket
-    opts.fd_out = socket(AF_INET, SOCK_DGRAM, 0); // NOLINT(android-cloexec-socket)
-    if(opts.fd_out == -1)
+    opts.sock_fd = socket(AF_INET, SOCK_DGRAM, 0);       // NOLINT(android-cloexec-socket)
+    if (opts.sock_fd == -1)
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
     }
@@ -43,10 +44,10 @@ int main(int argc, char *argv[])
     }
 
     // bind
-    result = bind(opts.fd_out, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
-    if(result != 0)
+    result = bind(opts.sock_fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
+    if (result != 0)
     {
-        close(opts.fd_out);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
@@ -54,22 +55,17 @@ int main(int argc, char *argv[])
     result = init_proxy_sockaddr(&to_addr, &opts);
     if (result != 0)
     {
-        close(opts.fd_out);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate proxy server's sockaddr_in", EXIT_FAILURE);
     }
 
-    result = do_client(&opts, &to_addr, &addr);
+    result = do_client(&opts, &to_addr, &from_addr);
     if (result != -0)
     {
-        close(opts.fd_out);
+        close(opts.sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
     }
 
-//
-//    printf("wrote %ld\n", nwrote);
-//    strncpy(data, argv[3], strlen(argv[3]));
-//    write(STDOUT_FILENO, data, nwrote);
-//    close(fd);
-
+    close(opts.sock_fd);
     return EXIT_SUCCESS;
 }

@@ -101,6 +101,8 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr)
         {
             continue;
         }
+
+        // free allocated memory (response_packet)
         free(response_packet);
     } while (nread > 0);
 

@@ -68,6 +68,8 @@ wait_response_packet:
         nread = recvfrom(opts->sock_fd, &response_packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)from_addr, &from_addr_len);
         if (nread == -1)
         {
+            // timeout reached (3000 ms)
+            fprintf(stdout, "\t|______________________________[TIMEOUT]: The packet has been sent again\n");        // NOLINT(cert-err33-c)
             nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));
             if (nwrote == -1)
             {
@@ -97,11 +99,16 @@ wait_response_packet:
         printf("[message to send]: ");
     }
 
+    // send FIN
     do
     {
         send_fin(current_seq, opts->sock_fd, proxy_addr);
         nread = recvfrom(opts->sock_fd, &response_packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)from_addr, &from_addr_len);
-        // set timer (TODO)
+        if (nread == -1)
+        {
+            fprintf(stdout, "\t|__FIN_________________________[TIMEOUT]: The FIN packet has been sent again\n");        // NOLINT(cert-err33-c)
+            continue;
+        }
         deserialize_packet(&response_packet);
     } while (nread == -1 || (response_packet.header.seq_no != current_seq || response_packet.header.packet_type != RUDP_ACK));
 
@@ -125,4 +132,3 @@ int send_fin(int current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
     free(fin_packet);
     return MY_SUCCESS_CODE;
 }
-

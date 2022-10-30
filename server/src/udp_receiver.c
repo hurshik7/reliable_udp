@@ -26,7 +26,7 @@ int do_server(struct options *opts, struct sockaddr_in *proxy_addr)
 {
     rudp_packet_t packet;
     socklen_t from_addr_len = sizeof(struct sockaddr_in);
-    int current_seq_no = -1;
+    long current_seq_no = -1;
 
     ssize_t nread;
     char buffer[MAX_DATA_LENGTH];

@@ -36,7 +36,7 @@ int init_proxy_sockaddr(struct sockaddr_in *proxy_addr, const struct options *op
 
 int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct sockaddr_in *from_addr)
 {
-    uint16_t current_seq = 0;
+    uint32_t current_seq = 0;
     char buffer[MAX_DATA_LENGTH];
     ssize_t nwrote;
     ssize_t nread;
@@ -114,7 +114,7 @@ wait_response_packet:
     return MY_SUCCESS_CODE;
 }
 
-int send_fin(uint16_t current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
+int send_fin(uint32_t current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
 {
     ssize_t nwrote;
     // send FIN, get ACK

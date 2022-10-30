@@ -42,12 +42,12 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct
 
 /**
  * Sends a FIN packet to the proxy server.
- * @param current_seq an uint16_t integer represents a sequence number
+ * @param current_seq an uint32_t integer represents a sequence number
  * @param sock_fd an integer represents the file descriptor of a socket
  * @param proxy_addr a sockaddr_in pointer points the address of the proxy server
  * @return an integer represents the status code
  */
-int send_fin(uint16_t current_seq, int sock_fd, struct sockaddr_in *proxy_addr);
+int send_fin(uint32_t current_seq, int sock_fd, struct sockaddr_in *proxy_addr);
 
 
 #endif //UDP_CLIENT_UDP_SENDER_H

@@ -17,7 +17,7 @@
  */
 typedef struct rudp_header {
     uint16_t packet_type;
-    uint16_t seq_no;
+    uint32_t seq_no;
 } rudp_header_t;
 
 /**

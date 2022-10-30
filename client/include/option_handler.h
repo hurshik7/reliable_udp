@@ -19,8 +19,7 @@ struct options
 {
     char *ip_out;
     in_port_t port_out;
-    int fd_out;
-    int fd_in;
+    int sock_fd;
 };
 
 void options_init(struct options *opts);

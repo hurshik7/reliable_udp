@@ -2,7 +2,6 @@
 // Created by Shik Hur on 2022-10-28.
 //
 
-#include "option_handler.h"
 #include "udp_sender.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,3 +131,4 @@ int send_fin(int current_seq, int sock_fd, struct sockaddr_in *proxy_addr)
     free(fin_packet);
     return MY_SUCCESS_CODE;
 }
+

@@ -1,0 +1,35 @@
+//
+// Created by Shik Hur on 2022-10-28.
+//
+
+#ifndef UDP_CLIENT_OPTION_HANDLER_H
+#define UDP_CLIENT_OPTION_HANDLER_H
+
+
+#include <arpa/inet.h>
+
+
+#define DEFAULT_PORT (5050)          // NOLINT(modernize-macro-to-enum)
+#define MIN_ARG_COUNT (5)            // NOLINT(modernize-macro-to-enum)
+#define FAIL (1)                     // NOLINT(modernize-macro-to-enum)
+#define FAIL_WITH_MSG (2)            // NOLINT(modernize-macro-to-enum)
+#define DEFAULT_CHANCE (50)          // NOLINT(modernize-macro-to-enum)
+
+
+struct options
+{
+    char *ip_in;
+    char *ip_out;
+    in_port_t port_in;
+    in_port_t port_out;
+    int in_sock_fd;
+    int out_sock_fd;
+    uint8_t chance_drop_packet;
+    uint8_t chance_drop_res;
+};
+
+void options_init(struct options *opts);
+int parse_arguments(int argc, char *argv[], struct options *opts);
+
+
+#endif //UDP_CLIENT_OPTION_HANDLER_H

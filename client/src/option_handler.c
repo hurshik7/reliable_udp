@@ -37,7 +37,6 @@ int parse_arguments(int argc, char *argv[], struct options *opts)
             }
             case 'p':
             {
-                // parse_port could exit the program.
                 opts->port_out = parse_port(optarg, 10, &is_error);        // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
                 if (is_error == FAIL)
                 {

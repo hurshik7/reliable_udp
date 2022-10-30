@@ -9,8 +9,10 @@ set(CMAKE_C_STANDARD 17)
 
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-set(SOURCE_LIST ${SOURCE_DIR}/main.c)
-set(HEADER_LIST )
+set(SOURCE_LIST ${SOURCE_DIR}/main.c ${SOURCE_DIR}/conversion.c ${SOURCE_DIR}/error.c ${SOURCE_DIR}/option_handler.c
+        ${SOURCE_DIR}/rudp_types.c ${SOURCE_DIR}/rudp_proxy.c)
+set(HEADER_LIST ${INCLUDE_DIR}/conversion.h ${INCLUDE_DIR}/error.h ${INCLUDE_DIR}/option_handler.h
+        ${INCLUDE_DIR}/rudp_types.h ${INCLUDE_DIR}/rudp_proxy.h)
 
 set(SANITIZE TRUE)
 

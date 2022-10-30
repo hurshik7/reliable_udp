@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     opts.sock_fd = socket(AF_INET, SOCK_DGRAM, 0);       // NOLINT(android-cloexec-socket)
     if (opts.sock_fd == -1)
     {
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] open a socket", EXIT_FAILURE);
     }
     // set timeout
     setsockopt(opts.sock_fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof(tv));
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     result = init_sockaddr(&addr);
     if (result != 0)
     {
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
     }
 
     // bind
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     if (result != 0)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
     // init proxy_server addr
@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     if (result != 0)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate proxy server's sockaddr_in", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] initiate proxy server's sockaddr_in", EXIT_FAILURE);
     }
 
     result = do_client(&opts, &to_addr, &from_addr);
     if (result != -0)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
     }
 
     close(opts.sock_fd);

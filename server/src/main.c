@@ -35,14 +35,14 @@ int main(int argc, char *argv[])
     opts.sock_fd = socket(AF_INET, SOCK_DGRAM, 0);                                           // NOLINT(android-cloexec-socket)
     if(opts.sock_fd == -1)
     {
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] socket", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] socket", EXIT_FAILURE);
     }
 
     // init addr
     result = init_sockaddr(&addr, &opts);
     if (result != 0)
     {
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
     }
 
     // set up the socket
@@ -54,19 +54,19 @@ int main(int argc, char *argv[])
     if(result == -1)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
 
     result = do_server(&opts, &from_addr);
     if (result == MY_FAILURE_CODE)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] recevfrom", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] recevfrom", EXIT_FAILURE);
     }
     else if (result == OPEN_SOCKET_FAILURE_CODE)
     {
         close(opts.sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] open socket to response a packet", EXIT_FAILURE);
+        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] open socket to response a packet", EXIT_FAILURE);
     }
 
     close(opts.sock_fd);

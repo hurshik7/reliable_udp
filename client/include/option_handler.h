@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 
 
-#define DEFAULT_PORT (5000)          // NOLINT(modernize-macro-to-enum)
+#define DEFAULT_PORT (5050)          // NOLINT(modernize-macro-to-enum)
 #define MIN_ARG_COUNT (3)            // NOLINT(modernize-macro-to-enum)
 #define FAIL (1)                     // NOLINT(modernize-macro-to-enum)
 #define FAIL_WITH_MSG (2)            // NOLINT(modernize-macro-to-enum)

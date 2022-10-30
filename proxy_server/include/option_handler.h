@@ -13,6 +13,7 @@
 #define MIN_ARG_COUNT (5)            // NOLINT(modernize-macro-to-enum)
 #define FAIL (1)                     // NOLINT(modernize-macro-to-enum)
 #define FAIL_WITH_MSG (2)            // NOLINT(modernize-macro-to-enum)
+#define DEFAULT_CHANCE (50)          // NOLINT(modernize-macro-to-enum)
 
 
 struct options
@@ -23,6 +24,8 @@ struct options
     in_port_t port_out;
     int in_sock_fd;
     int out_sock_fd;
+    uint8_t chance_drop_packet;
+    uint8_t chance_drop_res;
 };
 
 void options_init(struct options *opts);

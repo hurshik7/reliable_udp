@@ -1,4 +1,5 @@
 
+
 #include "error.h"
 #include "option_handler.h"
 #include "rudp_proxy.h"
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
     }
 
     // init addr
-    result = init_sockaddr(&addr);
+    result = init_sockaddr(&addr, &opts);
     if (result != 0)
     {
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
         close(opts.out_sock_fd);
         fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
     }
+    addr.sin_port = 0; // get an available port to communicate with server
     result = bind(opts.out_sock_fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
     if (result != 0)
     {
@@ -70,11 +72,17 @@ int main(int argc, char *argv[])
     }
 
     result = do_proxy(&opts, &server_addr, &client_addr);
-    if (result != -0)
+    if (result == THREAD_FAIL)
     {
         close(opts.in_sock_fd);
         close(opts.out_sock_fd);
-        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] sendto", EXIT_FAILURE);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] create thread", EXIT_FAILURE);
+    }
+    else if (result != 0)
+    {
+        close(opts.in_sock_fd);
+        close(opts.out_sock_fd);
+        fatal_message(__FILE__, __FUNCTION__, __LINE__, "[FAIL] do_proxy", EXIT_FAILURE);
     }
 
     close(opts.in_sock_fd);

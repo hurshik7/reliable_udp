@@ -62,7 +62,6 @@ int do_client(const struct options *opts, struct sockaddr_in *proxy_addr, struct
             return MY_FAILURE_CODE;
         }
 
-        // set up timer (TODO)
 wait_response_packet:
         nread = recvfrom(opts->sock_fd, &response_packet, sizeof(rudp_packet_t), 0, (struct sockaddr *)from_addr, &from_addr_len);
         if (nread == -1)
@@ -77,9 +76,9 @@ wait_response_packet:
             }
             goto wait_response_packet;
         }
-        deserialize_packet(&response_packet);
 
-        // if it receives NAK or it receives ACK but the seq_no is not equal to the finpacket it sent, resend the finpacket.
+        deserialize_packet(&response_packet);
+        // if it receives NAK, or it receives ACK but the seq_no is not equal to the finpacket it sent, resend the finpacket.
         if (response_packet.header.packet_type == RUDP_NAK || (response_packet.header.seq_no != current_seq || response_packet.header.packet_type != RUDP_ACK))
         {
             nwrote = sendto(opts->sock_fd, packet, sizeof(rudp_packet_t), 0, (const struct sockaddr *) proxy_addr, sizeof(struct sockaddr_in));

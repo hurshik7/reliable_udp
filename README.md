@@ -162,13 +162,12 @@ You are able to configure the ip address and port number of this proxy server an
 If you are using a **Mac** and the following message appears when you run the program either Server or Client, set the following environment variable. 
 
 
-```
 malloc: nano zone abandoned due to inability to preallocate reserved vm space.
 
 
 <table>
   <tr>
-   <td>```
+   <td>
 
 <strong>Variable</strong>
    </td>

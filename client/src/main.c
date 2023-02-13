@@ -50,14 +50,6 @@ int main(int argc, char *argv[])
         fatal_message(__FILE__, __func__, __LINE__, "[FAIL] initiate sockaddr_in", EXIT_FAILURE);
     }
 
-    // bind
-    result = bind(opts.sock_fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
-    if (result != 0)
-    {
-        close(opts.sock_fd);
-        fatal_message(__FILE__, __func__, __LINE__, "[FAIL] bind", EXIT_FAILURE);
-    }
-
     // init proxy_server addr
     result = init_proxy_sockaddr(&to_addr, &opts);
     if (result != 0)
